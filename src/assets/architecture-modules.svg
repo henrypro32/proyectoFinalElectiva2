@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1100" height="680" viewBox="0 0 1100 680" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <style>
+    .box { fill: #ffffff; stroke: #2b2f3a; stroke-width: 2; rx: 8; }
+    .lazy { fill: #f6f9ff; }
+    .core { fill: #fff8e1; }
+    .shared { fill: #e8f8f5; }
+    .title { font: 18px/1.1 Inter, Arial, sans-serif; fill: #182033; font-weight: 700; }
+    .label { font: 13px/1.1 Inter, Arial, sans-serif; fill: #182033; }
+    .note { font: 12px/1.1 Inter, Arial, sans-serif; fill: #4a5568; }
+    .line { stroke: #8b93a7; stroke-width: 2; marker-end: url(#arrow); }
+  </style>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8b93a7" />
+    </marker>
+  </defs>
+
+  <!-- Header -->
+  <text x="40" y="36" class="title">Arquitectura por módulos — Proyecto: Biblioteca universitaria</text>
+  <text x="40" y="58" class="note">Módulos lazy cargados según ruta; Core/Shared contienen singletons y utilidades reutilizables.</text>
+
+  <!-- Core -->
+  <rect x="40" y="90" width="260" height="120" class="box core" />
+  <text x="60" y="118" class="label">CoreModule</text>
+  <text x="60" y="138" class="note">AuthService, ApiInterceptor, ErrorHandler</text>
+  <text x="60" y="158" class="note">AppShell, TopNav</text>
+
+  <!-- Shared -->
+  <rect x="40" y="230" width="260" height="100" class="box shared" />
+  <text x="60" y="258" class="label">SharedModule</text>
+  <text x="60" y="278" class="note">FileCard, Pipes, Validators, UI</text>
+
+  <!-- Lazy modules group -->
+  <rect x="360" y="80" width="680" height="260" fill="#ffffff" stroke="none" />
+  <text x="372" y="104" class="label">Módulos funcionales (lazy)</text>
+
+  <!-- Library -->
+  <rect x="380" y="120" width="220" height="100" class="box lazy" />
+  <text x="400" y="150" class="label">LibraryModule (lazy)</text>
+  <text x="400" y="170" class="note">Upload, FileList, Search, FileDetail</text>
+
+  <!-- Courses -->
+  <rect x="620" y="120" width="220" height="100" class="box lazy" />
+  <text x="640" y="150" class="label">CoursesModule (lazy)</text>
+  <text x="640" y="170" class="note">CourseList, CourseDetail</text>
+
+  <!-- Admin -->
+  <rect x="380" y="240" width="220" height="100" class="box lazy" />
+  <text x="400" y="270" class="label">AdminModule (lazy, protegido)</text>
+  <text x="400" y="290" class="note">UserMgmt, ContentApproval, RoleGuard</text>
+
+  <!-- Auth -->
+  <rect x="620" y="240" width="220" height="100" class="box lazy" />
+  <text x="640" y="270" class="label">AuthModule (lazy)</text>
+  <text x="640" y="290" class="note">Login, Register, Profile</text>
+
+  <!-- Notifications & Settings (smaller) -->
+  <rect x="920" y="120" width="120" height="100" class="box" />
+  <text x="932" y="150" class="label">Notifications</text>
+  <text x="932" y="170" class="note">Sockets / Push</text>
+
+  <rect x="920" y="240" width="120" height="100" class="box" />
+  <text x="936" y="270" class="label">Settings</text>
+  <text x="936" y="290" class="note">Preferences</text>
+
+  <!-- Lines from Core/Shared to lazy modules -->
+  <path d="M300 140 L360 140" class="line" />
+  <path d="M300 270 L360 270" class="line" />
+
+  <!-- Connections to Library and Admin -->
+  <path d="M460 220 L460 240" class="line" />
+  <path d="M700 220 L700 240" class="line" />
+
+  <!-- Notes -->
+  <text x="40" y="360" class="note">Leyenda: módulos en azul claro = lazy-loaded. CoreModule (amarillo) y SharedModule (verde claro) son cargados al inicio o importados por otros módulos.</text>
+  <text x="40" y="380" class="note">Protección: AdminModule debe estar protegido por un RoleGuard para permitir solo usuarios con rol 'admin'.</text>
+
+  <!-- Footer -->
+  <text x="40" y="420" class="note">Generado automáticamente — diagrama simple para documentación y presentación.</text>
+</svg>
