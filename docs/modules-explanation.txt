@@ -1,0 +1,40 @@
+Módulos y su importancia — Proyecto: Biblioteca Universitaria
+
+CoreModule
+- Qué contiene: servicios singleton (AuthService, ApiInterceptor), manejo global de errores, AppShell (top-nav, footer).
+- Por qué importa: centraliza dependencias globales y configuraciones que deben existir una sola vez en la app. Evita duplicación y facilita la inyección de servicios compartidos.
+
+SharedModule
+- Qué contiene: componentes reutilizables (FileCard, TagList), pipes, directivas, validadores y estilos comunes.
+- Por qué importa: promueve la reutilización y consistencia UI; mejora velocidad de desarrollo al no repetir código entre módulos.
+
+AuthModule (lazy)
+- Qué contiene: login, registro, perfil, manejo de tokens/session.
+- Por qué importa: separa la lógica de autenticación; permite cargarla sólo cuando el usuario entra a rutas relacionadas, mejorando rendimiento.
+
+LibraryModule (lazy)
+- Qué contiene: subida de archivos, lista de trabajos, búsqueda, detalle de archivo, mis subidas.
+- Por qué importa: núcleo funcional del proyecto. Aislarlo facilita optimizar la experiencia de uploads/búsqueda y escalar capacidades (indexado, búsqueda full-text).
+
+CoursesModule (lazy)
+- Qué contiene: lista y detalle de materias, asociación de archivos a cursos/profesores.
+- Por qué importa: organiza la navegación por materia y permite filtrar contenido por curso; separarlo ayuda a manejar permisos y relaciones sin enredar el módulo principal.
+
+AdminModule (lazy, protegido)
+- Qué contiene: gestión de usuarios, aprobación de contenido, reportes.
+- Por qué importa: agrupa funciones administrativas críticas que sólo deben estar accesibles a administradores; cargado bajo demanda y protegido por guards mejora seguridad y rendimiento.
+
+NotificationsModule
+- Qué contiene: manejo de websockets/push notifications y centro de notificaciones.
+- Por qué importa: desacopla la lógica de notificaciones del resto de la app; se puede activar sólo si el usuario quiere recibir notificaciones.
+
+SettingsModule
+- Qué contiene: preferencias del usuario, límites de subida, notificaciones.
+- Por qué importa: centraliza configuraciones personales y de la aplicación, facilitando su mantenimiento y la personalización del comportamiento.
+
+Notas finales
+- Lazy-loading: módulos pesados (Library, Admin, Auth, Courses) deben cargarse de forma perezosa para reducir el tiempo de carga inicial.
+- Guards y seguridad: Admin y rutas de administración requieren RoleGuard/AuthGuard para controlar acceso.
+- Beneficios generales: mejor organización, escalabilidad, rendimiento, testabilidad y trabajo en equipo (cada módulo puede tener responsable).
+
+(Explicación pensada para presentar en una entrega o defender la arquitectura ante el equipo/profesor.)
