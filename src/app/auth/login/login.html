@@ -1,1 +1,82 @@
-<p>login works!</p>
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h1>Biblioteca Digital</h1>
+      <h2>Ingeniería de Sistemas</h2>
+      <p>Accede a trabajos académicos y proyectos</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Campo Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          placeholder="tu-email@estudiante.com"
+          [class.error]="isFieldInvalid('email')"
+        />
+        <div *ngIf="isFieldInvalid('email')" class="error-message">
+          {{ getFieldError('email') }}
+        </div>
+      </div>
+
+      <!-- Campo Contraseña -->
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          placeholder="••••••••"
+          [class.error]="isFieldInvalid('password')"
+        />
+        <div *ngIf="isFieldInvalid('password')" class="error-message">
+          {{ getFieldError('password') }}
+        </div>
+      </div>
+
+      <!-- Mensaje de error general -->
+      <div *ngIf="errorMessage" class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Botón de login -->
+      <button
+        type="submit"
+        [disabled]="isLoading"
+        class="login-button"
+      >
+        <span *ngIf="isLoading" class="spinner"></span>
+        {{ isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+      </button>
+
+      <!-- Enlaces adicionales -->
+      <div class="form-links">
+        <button type="button" (click)="navigateToRegister()" class="link-button">
+          ¿No tienes cuenta? Regístrate
+        </button>
+        <button type="button" class="link-button">
+          ¿Olvidaste tu contraseña?
+        </button>
+      </div>
+
+      <!-- Credenciales de prueba (solo para desarrollo) -->
+      <div class="test-credentials">
+        <p><small>Credenciales de prueba:</small></p>
+        <button type="button" (click)="fillTestCredentials()" class="test-button">
+          Usar credenciales de prueba
+        </button>
+        <small>
+          Email: juan.perez@estudiante.com<br>
+          Contraseña: password123
+        </small>
+      </div>
+    </form>
+
+    <div class="login-footer">
+      <p>&copy; 2024 Universidad - Facultad de Ingeniería</p>
+    </div>
+  </div>
+</div>
