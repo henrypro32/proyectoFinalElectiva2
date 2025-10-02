@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AcademicWorkService } from '../file';
 import { AcademicWork, WorkCategory, SearchFilters } from '../../shared/models/academic-work.model';
-import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { map, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
@@ -58,27 +58,8 @@ export class FileList implements OnInit {
   }
 
   private setupSearch(): void {
-    // Combinar filtros y realizar búsqueda reactiva
-    this.works$ = combineLatest([
-      this.searchFilters$.pipe(
-        debounceTime(300),
-        distinctUntilChanged()
-      )
-    ]).pipe(
-      map(([filters]) => filters),
-      map(filters => {
-        // Aquí se haría la llamada al servicio de búsqueda
-        return this.academicWorkService.searchWorks(filters);
-      }),
-      map(searchObservable => searchObservable)
-    ).pipe(
-      map(() => this.academicWorkService.getPublicWorks())
-    ).pipe(
-      map(worksObs => worksObs)
-    );
-
-    // Inicializar con búsqueda vacía
-    this.performSearch();
+    // Inicializar con trabajos públicos
+    this.works$ = this.academicWorkService.getPublicWorks();
   }
 
   // Métodos de búsqueda y filtrado

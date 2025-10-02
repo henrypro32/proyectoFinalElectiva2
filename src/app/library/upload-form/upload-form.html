@@ -1,1 +1,229 @@
-<p>upload-form works!</p>
+<div class="upload-container">
+  <div class="upload-card">
+    <div class="upload-header">
+      <h1>📤 Subir Trabajo Académico</h1>
+      <p>Comparte tu proyecto con la comunidad</p>
+    </div>
+
+    <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" class="upload-form">
+      <!-- Información básica -->
+      <div class="form-section">
+        <h3>📋 Información Básica</h3>
+        
+        <div class="form-group">
+          <label for="title">Título del trabajo *</label>
+          <input
+            type="text"
+            id="title"
+            formControlName="title"
+            placeholder="Ej: Sistema de Gestión Académica"
+            [class.error]="isFieldInvalid('title')"
+          />
+          <div *ngIf="isFieldInvalid('title')" class="error-message">
+            {{ getFieldError('title') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Descripción *</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="4"
+            placeholder="Describe brevemente tu trabajo, tecnologías usadas, objetivos, etc."
+            [class.error]="isFieldInvalid('description')"
+          ></textarea>
+          <div *ngIf="isFieldInvalid('description')" class="error-message">
+            {{ getFieldError('description') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Información académica -->
+      <div class="form-section">
+        <h3>🎓 Información Académica</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="subject">Materia *</label>
+            <input
+              type="text"
+              id="subject"
+              formControlName="subject"
+              list="subjects"
+              placeholder="Ej: Programación Web"
+              [class.error]="isFieldInvalid('subject')"
+            />
+            <datalist id="subjects">
+              <option *ngFor="let subject of commonSubjects" [value]="subject">
+            </datalist>
+            <div *ngIf="isFieldInvalid('subject')" class="error-message">
+              {{ getFieldError('subject') }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="semester">Semestre *</label>
+            <select id="semester" formControlName="semester" [class.error]="isFieldInvalid('semester')">
+              <option value="">Seleccionar semestre</option>
+              <option *ngFor="let semester of semesterOptions" [value]="semester">
+                Semestre {{ semester }}
+              </option>
+            </select>
+            <div *ngIf="isFieldInvalid('semester')" class="error-message">
+              {{ getFieldError('semester') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="professor">Profesor *</label>
+            <input
+              type="text"
+              id="professor"
+              formControlName="professor"
+              placeholder="Ej: Dr. Juan Pérez"
+              [class.error]="isFieldInvalid('professor')"
+            />
+            <div *ngIf="isFieldInvalid('professor')" class="error-message">
+              {{ getFieldError('professor') }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="year">Año *</label>
+            <select id="year" formControlName="year" [class.error]="isFieldInvalid('year')">
+              <option *ngFor="let year of yearOptions" [value]="year">{{ year }}</option>
+            </select>
+            <div *ngIf="isFieldInvalid('year')" class="error-message">
+              {{ getFieldError('year') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categorización -->
+      <div class="form-section">
+        <h3>🏷️ Categorización</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="categoryId">Categoría *</label>
+            <select id="categoryId" formControlName="categoryId" [class.error]="isFieldInvalid('categoryId')">
+              <option value="">Seleccionar categoría</option>
+              <option *ngFor="let category of categories$ | async" [value]="category.id">
+                {{ category.name }}
+              </option>
+            </select>
+            <div *ngIf="isFieldInvalid('categoryId')" class="error-message">
+              {{ getFieldError('categoryId') }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="tags">Tags (separados por coma)</label>
+            <input
+              type="text"
+              id="tags"
+              formControlName="tags"
+              placeholder="Ej: Angular, Spring Boot, MySQL"
+            />
+            <small>Ayuda a otros a encontrar tu trabajo</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Archivos -->
+      <div class="form-section">
+        <h3>📁 Archivos</h3>
+        
+        <div class="file-upload-area">
+          <input
+            type="file"
+            id="files"
+            multiple
+            (change)="onFileSelected($event)"
+            accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,.rar"
+            style="display: none;"
+          />
+          <label for="files" class="file-upload-label">
+            <div class="upload-icon">📤</div>
+            <div class="upload-text">
+              <strong>Haz clic para seleccionar archivos</strong>
+              <p>O arrastra y suelta aquí</p>
+              <small>PDF, DOC, PPT, ZIP, RAR (máx. 50MB por archivo)</small>
+            </div>
+          </label>
+        </div>
+
+        <!-- Lista de archivos seleccionados -->
+        <div *ngIf="selectedFiles.length > 0" class="selected-files">
+          <h4>Archivos seleccionados:</h4>
+          <div *ngFor="let file of selectedFiles; let i = index" class="file-item">
+            <div class="file-info">
+              <span class="file-icon">{{ getFileIcon(file) }}</span>
+              <div class="file-details">
+                <strong>{{ file.name }}</strong>
+                <small>{{ formatFileSize(file.size) }}</small>
+              </div>
+            </div>
+            <button type="button" (click)="removeFile(i)" class="remove-file-btn">❌</button>
+          </div>
+        </div>
+
+        <!-- Error de archivos -->
+        <div *ngIf="errorMessage && !uploadForm.get('title')?.invalid" class="alert alert-error">
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <!-- Términos y condiciones -->
+      <div class="form-section">
+        <div class="checkbox-group">
+          <input
+            type="checkbox"
+            id="agreement"
+            formControlName="agreementAccepted"
+            [class.error]="isFieldInvalid('agreementAccepted')"
+          />
+          <label for="agreement">
+            Acepto los términos y condiciones. Mi trabajo será revisado antes de publicarse. *
+          </label>
+        </div>
+        <div *ngIf="isFieldInvalid('agreementAccepted')" class="error-message">
+          Debes aceptar los términos y condiciones
+        </div>
+      </div>
+
+      <!-- Progreso de subida -->
+      <div *ngIf="isUploading" class="upload-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+        </div>
+        <p>Subiendo archivo... {{ uploadProgress }}%</p>
+      </div>
+
+      <!-- Mensaje de éxito -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
+
+      <!-- Mensaje de error general -->
+      <div *ngIf="errorMessage && uploadForm.get('title')?.invalid" class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="form-actions">
+        <button type="button" (click)="cancel()" class="cancel-btn" [disabled]="isUploading">
+          ❌ Cancelar
+        </button>
+        <button type="submit" class="submit-btn" [disabled]="isUploading || uploadForm.invalid || selectedFiles.length === 0">
+          <span *ngIf="isUploading" class="spinner"></span>
+          {{ isUploading ? 'Subiendo...' : '📤 Subir Trabajo' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

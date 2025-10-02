@@ -1,1 +1,172 @@
-<p>file-list works!</p>
+<div class="library-container">
+  <!-- Header con título y botón de subir -->
+  <div class="library-header">
+    <div class="header-content">
+      <h1>📚 Biblioteca Digital</h1>
+      <p>Trabajos académicos y proyectos de Ingeniería de Sistemas</p>
+      <button class="upload-btn" (click)="openUploadForm()">
+        📤 Subir Trabajo
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros de búsqueda -->
+  <div class="search-filters">
+    <div class="filter-row">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="onSearchTermChange()"
+        placeholder="🔍 Buscar por título, descripción o tags..."
+        class="search-input"
+      />
+      
+      <select [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange()" class="filter-select">
+        <option value="">Todas las categorías</option>
+        <option *ngFor="let category of categories$ | async" [value]="category.id">
+          {{ category.name }}
+        </option>
+      </select>
+      
+      <select [(ngModel)]="selectedSemester" (ngModelChange)="onSemesterChange()" class="filter-select">
+        <option value="">Todos los semestres</option>
+        <option *ngFor="let semester of semesterOptions" [value]="semester">
+          Semestre {{ semester }}
+        </option>
+      </select>
+      
+      <button (click)="clearFilters()" class="clear-btn">🗑️ Limpiar</button>
+    </div>
+  </div>
+
+  <!-- Controles de vista y ordenamiento -->
+  <div class="view-controls">
+    <div class="sort-controls">
+      <span>Ordenar por:</span>
+      <button 
+        [class.active]="sortBy === 'recent'"
+        (click)="changeSortBy('recent')"
+        class="sort-btn"
+      >
+        📅 Recientes
+      </button>
+      <button 
+        [class.active]="sortBy === 'popular'"
+        (click)="changeSortBy('popular')"
+        class="sort-btn"
+      >
+        🔥 Populares
+      </button>
+      <button 
+        [class.active]="sortBy === 'title'"
+        (click)="changeSortBy('title')"
+        class="sort-btn"
+      >
+        🔤 A-Z
+      </button>
+    </div>
+    
+    <div class="view-mode">
+      <button 
+        [class.active]="viewMode === 'grid'"
+        (click)="changeViewMode('grid')"
+        class="view-btn"
+      >
+        ⊞ Cuadrícula
+      </button>
+      <button 
+        [class.active]="viewMode === 'list'"
+        (click)="changeViewMode('list')"
+        class="view-btn"
+      >
+        ≡ Lista
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner"></div>
+    <p>Cargando trabajos...</p>
+  </div>
+
+  <!-- Lista de trabajos -->
+  <div *ngIf="!isLoading" class="works-container" [class.grid-view]="viewMode === 'grid'" [class.list-view]="viewMode === 'list'">
+    <div *ngFor="let work of works$ | async" class="work-card" (click)="viewWorkDetail(work.id)">
+      <div class="work-header">
+        <h3>{{ work.title }}</h3>
+        <span class="category-badge" [style.background-color]="work.category.color">
+          {{ work.category.name }}
+        </span>
+      </div>
+      
+      <div class="work-meta">
+        <p><strong>📚 Materia:</strong> {{ work.subject }}</p>
+        <p><strong>👨‍🏫 Profesor:</strong> {{ work.professor }}</p>
+        <p><strong>📅 Semestre:</strong> {{ work.semester }} - {{ work.year }}</p>
+        <p><strong>👤 Autor:</strong> {{ work.author.name }}</p>
+      </div>
+      
+      <div class="work-description">
+        <p>{{ work.description }}</p>
+      </div>
+      
+      <div class="work-tags">
+        <span *ngFor="let tag of work.tags" class="tag">{{ tag }}</span>
+      </div>
+      
+      <div class="work-files">
+        <h4>📁 Archivos ({{ work.files.length }}):</h4>
+        <div *ngFor="let file of work.files" class="file-item">
+          <span>{{ getFileTypeIcon(file.type) }} {{ file.name }}</span>
+          <small>({{ formatFileSize(file.size) }})</small>
+        </div>
+      </div>
+      
+      <div class="work-stats">
+        <span>📥 {{ work.downloadCount }} descargas</span>
+        <span>⭐ {{ work.rating }}/5</span>
+        <span>📅 {{ formatDate(work.uploadDate) }}</span>
+      </div>
+      
+      <div class="work-actions">
+        <button (click)="downloadWork(work); $event.stopPropagation()" class="download-btn">
+          💾 Descargar
+        </button>
+        <button (click)="viewWorkDetail(work.id); $event.stopPropagation()" class="view-btn">
+          👁️ Ver detalles
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay resultados -->
+  <div *ngIf="!isLoading && (works$ | async)?.length === 0" class="no-results">
+    <h3>😔 No se encontraron trabajos</h3>
+    <p>Intenta ajustar los filtros de búsqueda o sube el primer trabajo</p>
+    <button (click)="openUploadForm()" class="upload-btn">📤 Subir el primer trabajo</button>
+  </div>
+
+  <!-- Secciones destacadas -->
+  <div class="featured-sections">
+    <div class="featured-section">
+      <h3>🔥 Más Populares</h3>
+      <div class="mini-works">
+        <div *ngFor="let work of popularWorks$ | async" class="mini-work-card">
+          <h4>{{ work.title }}</h4>
+          <p>📥 {{ work.downloadCount }} descargas</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="featured-section">
+      <h3>📅 Recientes</h3>
+      <div class="mini-works">
+        <div *ngFor="let work of recentWorks$ | async" class="mini-work-card">
+          <h4>{{ work.title }}</h4>
+          <p>📅 {{ formatDate(work.uploadDate) }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

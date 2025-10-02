@@ -194,7 +194,9 @@ export class AdminService {
 
   // Configuración del sistema
   getSystemSettings(): Observable<SystemSettings> {
-    return this._systemSettings$.asObservable();
+    return this._systemSettings$.asObservable().pipe(
+      map(settings => settings!)
+    );
   }
 
   updateSystemSettings(settings: Partial<SystemSettings>): Observable<SystemSettings> {
