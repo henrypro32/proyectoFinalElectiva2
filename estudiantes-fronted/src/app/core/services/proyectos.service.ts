@@ -3,9 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, catchError, delay } from 'rxjs';
 import { DEFAULT_PROYECTOS, DEFAULT_MATERIAS } from '../data/seed';
 
-// Allow overriding the API URL at runtime using a global injected variable
-// Useful when deploying frontend (S3/CloudFront) and backend (Elastic Beanstalk) separately.
-const API_URL = (window as any)?.__env?.API_URL || 'http://localhost:5000';
+// Resolve API URL at runtime to avoid accessing `window` during SSR (module import).
+function getApiUrl(): string {
+  try {
+    if (typeof window !== 'undefined' && (window as any).__env && (window as any).__env.API_URL) {
+      return (window as any).__env.API_URL;
+    }
+  } catch { /* noop */ }
+  return 'http://localhost:5000';
+}
 const STORAGE_KEY = 'sim_proyectos_v1';
 const STORAGE_MATERIAS = 'sim_materias_v1';
 
@@ -42,13 +48,13 @@ export class ProyectosService {
 
   /** Listar proyectos: intenta backend público; si falla, retorna datos simulados. */
   listar(): Observable<any> {
-    return this.http.get<any>(`${API_URL}/public/proyectos`).pipe(
+  return this.http.get<any>(`${getApiUrl()}/public/proyectos`).pipe(
       catchError(() => of(this.inMemory).pipe(delay(150)))
     );
   }
 
   listarSeed(): Observable<any> {
-    return this.http.get<any>(`${API_URL}/seed`).pipe(
+  return this.http.get<any>(`${getApiUrl()}/seed`).pipe(
       catchError(() => {
         // devolver estructura similar a seed con proyectos y materias (usar semilla si no hay localStorage)
         let materias: any[] = [];
@@ -66,7 +72,7 @@ export class ProyectosService {
 
   crear(proyecto: any): Observable<any> {
     // intentar crear contra backend; si falla, simular localmente
-    return this.http.post<any>(`${API_URL}/proyectos`, proyecto).pipe(
+  return this.http.post<any>(`${getApiUrl()}/proyectos`, proyecto).pipe(
       catchError(() => {
         const id = 'local-' + Date.now();
         const newP = {
@@ -95,7 +101,7 @@ export class ProyectosService {
   // Incrementa descargas localmente (y en backend si disponible)
   registrarDescarga(id: string): Observable<any> {
     // intentar backend simplificado
-    return this.http.post<any>(`${API_URL}/proyectos/${id}/download`, {}).pipe(
+  return this.http.post<any>(`${getApiUrl()}/proyectos/${id}/download`, {}).pipe(
       catchError(() => {
         const p = this.inMemory.find((x: any) => x.id === id);
         if (p) { p.descargas = (p.descargas || 0) + 1; this.persist(); }

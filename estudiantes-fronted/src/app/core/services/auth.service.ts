@@ -2,10 +2,16 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
 
-// Allow overriding the API URL at runtime using a global injected variable
-// e.g. put this in index.html before the bundle:
-// <script>window.__env = { API_URL: 'https://api.example.com' };</script>
-const API_URL = (window as any)?.__env?.API_URL || 'http://localhost:5000';
+// Resolve API URL at runtime to avoid accessing `window` during SSR (module import).
+function getApiUrl(): string {
+  try {
+    // only access window in browser
+    if (typeof window !== 'undefined' && (window as any).__env && (window as any).__env.API_URL) {
+      return (window as any).__env.API_URL;
+    }
+  } catch { /* noop */ }
+  return 'http://localhost:5000';
+}
 const SIM_USER_KEY = 'sim_users_current';
 
 function isBrowser(): boolean {
@@ -23,7 +29,7 @@ export class AuthService {
    * Simulación: cualquier email/password funcionará; si el email contiene 'admin' se marca rol admin.
    */
   login(credentials: { email: string; password: string }): Observable<any> {
-    return this.http.post<any>(`${API_URL}/auth/login`, credentials).pipe(
+  return this.http.post<any>(`${getApiUrl()}/auth/login`, credentials).pipe(
       tap(response => {
         const token = response?.access_token || response?.token;
         if (token && isBrowser()) {
