@@ -3,7 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, catchError, delay } from 'rxjs';
 import { DEFAULT_PROYECTOS, DEFAULT_MATERIAS } from '../data/seed';
 
-const API_URL = 'http://localhost:5000';
+// Allow overriding the API URL at runtime using a global injected variable
+// Useful when deploying frontend (S3/CloudFront) and backend (Elastic Beanstalk) separately.
+const API_URL = (window as any)?.__env?.API_URL || 'http://localhost:5000';
 const STORAGE_KEY = 'sim_proyectos_v1';
 const STORAGE_MATERIAS = 'sim_materias_v1';
 

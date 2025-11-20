@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
 
-const API_URL = 'http://localhost:5000';
+// Allow overriding the API URL at runtime using a global injected variable
+// e.g. put this in index.html before the bundle:
+// <script>window.__env = { API_URL: 'https://api.example.com' };</script>
+const API_URL = (window as any)?.__env?.API_URL || 'http://localhost:5000';
 const SIM_USER_KEY = 'sim_users_current';
 
 function isBrowser(): boolean {
