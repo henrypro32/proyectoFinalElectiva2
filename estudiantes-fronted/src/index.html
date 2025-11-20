@@ -8,6 +8,12 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
+  <!-- Runtime env: set window.__env.API_URL to override backend URL in production -->
+  <script>
+    window.__env = window.__env || {};
+    // change this value during deployment (or inject a small env.js before index.html)
+    window.__env.API_URL = window.__env.API_URL || 'http://localhost:5000';
+  </script>
   <app-root></app-root>
 </body>
 </html>
